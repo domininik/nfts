@@ -21,7 +21,6 @@ npx hardhat run --network localhost scripts/deploy.js
 Run tests with
 ```
 npx hardhat test
-
 ```
 
 Start client with

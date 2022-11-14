@@ -11,10 +11,33 @@ describe("DFToken", function () {
   }
 
   describe("Deployment", function () {
-    it("Sets the right owner", async function () {
+    it("Sets the right contract owner", async function () {
       const { token, owner } = await loadFixture(deployFixture);
 
       expect(await token.owner()).to.equal(owner.address);
+    });
+  });
+
+  describe("Minting", function () {
+    it("Assigns token owner", async function () {
+      const { token, otherAccount } = await loadFixture(deployFixture);
+      await token.safeMint(otherAccount.address, '');
+
+      expect(await token.ownerOf(0)).to.equal(otherAccount.address);
+    });
+
+    it("Updates token owner balance", async function () {
+      const { token, otherAccount } = await loadFixture(deployFixture);
+      await token.safeMint(otherAccount.address, '');
+
+      expect(await token.balanceOf(otherAccount.address)).to.equal(1);
+    });
+
+    it("Sets token URI", async function () {
+      const { token, otherAccount } = await loadFixture(deployFixture);
+      await token.safeMint(otherAccount.address, "http://example.com");
+
+      expect(await token.tokenURI(0)).to.equal("http://example.com");
     });
   });
 });
