@@ -1,7 +1,8 @@
 import React from 'react';
 import { ethers } from 'ethers';
 import DFToken from './artifacts/contracts/DFToken.sol/DFToken.json';
-import { Container, Segment, Message } from 'semantic-ui-react';
+import { Container, Message, Segment } from 'semantic-ui-react';
+import Mint from './Mint.js';
 
 class App extends React.Component {
   state = {
@@ -33,7 +34,12 @@ class App extends React.Component {
       });
       contract = new ethers.Contract(contractAddress, DFToken.abi, signer);
       const owner = await contract.owner();
-      this.setState({ owner: owner });
+      const balance = await contract.balanceOf(signerAddress);
+
+      this.setState({
+        owner: owner,
+        balance: balance.toString()
+      });
     } catch (error) {
       console.log(error);
     }
@@ -48,8 +54,18 @@ class App extends React.Component {
     return (
       <Container style={{marginTop: 10}}>
         {
-          this.state.owner == this.state.signerAddress ? (
-            <Segment>You are logged as { this.state.signerAddress }</Segment>
+          this.state.owner === this.state.signerAddress ? (
+            <React.Fragment>
+              <Message attached>
+                You have { this.state.balance } NFTs
+              </Message>
+              <Segment attached>
+                <Mint
+                  contract={this.state.contract}
+                  signerAddress={this.state.signerAddress}
+                />
+              </Segment>
+            </React.Fragment>
           ) : (
             <Message warning>
               <Message.Header>You are not authorized to access this page</Message.Header>
