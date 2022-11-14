@@ -8,7 +8,9 @@ class App extends React.Component {
   state = {
     contract: null,
     signerAddress: '',
-    owner: null
+    owner: null,
+    balance: 0,
+    counter: 0
   }
 
   componentDidMount() {
@@ -35,10 +37,12 @@ class App extends React.Component {
       contract = new ethers.Contract(contractAddress, DFToken.abi, signer);
       const owner = await contract.owner();
       const balance = await contract.balanceOf(signerAddress);
+      const counter = await contract.tokenIdCounter();
 
       this.setState({
         owner: owner,
-        balance: balance.toString()
+        balance: balance.toString(),
+        counter: counter.toString()
       });
     } catch (error) {
       console.log(error);
@@ -57,7 +61,8 @@ class App extends React.Component {
           this.state.owner === this.state.signerAddress ? (
             <React.Fragment>
               <Message attached>
-                You have { this.state.balance } NFTs
+                <Message.Header>{ this.state.balance } owned by you</Message.Header>
+                { this.state.counter } available
               </Message>
               <Segment attached>
                 <Mint

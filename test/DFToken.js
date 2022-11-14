@@ -33,6 +33,13 @@ describe("DFToken", function () {
       expect(await token.balanceOf(otherAccount.address)).to.equal(1);
     });
 
+    it("Updates token id counter", async function () {
+      const { token, otherAccount } = await loadFixture(deployFixture);
+      await token.safeMint(otherAccount.address, '');
+
+      expect(await token.tokenIdCounter()).to.equal(1);
+    });
+
     it("Sets token URI", async function () {
       const { token, otherAccount } = await loadFixture(deployFixture);
       await token.safeMint(otherAccount.address, "http://example.com");

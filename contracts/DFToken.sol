@@ -9,13 +9,13 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 contract DFToken is ERC721, ERC721URIStorage, Ownable {
     using Counters for Counters.Counter;
 
-    Counters.Counter private _tokenIdCounter;
+    Counters.Counter public tokenIdCounter;
 
     constructor() ERC721("DFToken", "DFT") {}
 
     function safeMint(address to, string memory uri) public onlyOwner {
-        uint256 tokenId = _tokenIdCounter.current();
-        _tokenIdCounter.increment();
+        uint256 tokenId = tokenIdCounter.current();
+        tokenIdCounter.increment();
         _safeMint(to, tokenId);
         _setTokenURI(tokenId, uri);
     }
