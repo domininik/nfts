@@ -1,6 +1,7 @@
 import React from 'react';
 import { ethers } from 'ethers';
 import DFToken from './artifacts/contracts/DFToken.sol/DFToken.json';
+import { Container, Segment, Message } from 'semantic-ui-react';
 
 class App extends React.Component {
   state = {
@@ -31,6 +32,8 @@ class App extends React.Component {
         nonce: 0
       });
       contract = new ethers.Contract(contractAddress, DFToken.abi, signer);
+      const owner = await contract.owner();
+      this.setState({ owner: owner });
     } catch (error) {
       console.log(error);
     }
@@ -43,11 +46,17 @@ class App extends React.Component {
 
   render() {
     return (
-      this.state.contract ? (
-        <div>Contract</div>
-      ) : (
-        <div>You are not authorized to access this page</div>
-      )
+      <Container style={{marginTop: 10}}>
+        {
+          this.state.owner == this.state.signerAddress ? (
+            <Segment>You are logged as { this.state.signerAddress }</Segment>
+          ) : (
+            <Message warning>
+              <Message.Header>You are not authorized to access this page</Message.Header>
+            </Message>
+          )
+        }
+      </Container>
     )
   }
 }
