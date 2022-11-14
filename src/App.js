@@ -39,6 +39,8 @@ class App extends React.Component {
       const balance = await contract.balanceOf(signerAddress);
       const counter = await contract.tokenIdCounter();
 
+      this.addListeners(contract);
+
       this.setState({
         owner: owner,
         balance: balance.toString(),
@@ -54,9 +56,34 @@ class App extends React.Component {
     });
   }
 
+  addListeners(contract) {
+    contract.on('Transfer', async (from, to, tokenId, event) => {
+      const notification = `Token #${tokenId} transferred from ${from} to ${to}`;
+      const block = await event.getBlock();
+      const timestamp = new Date(block.timestamp * 1000);
+      const balance = await contract.balanceOf(this.state.signerAddress);
+      const counter = await contract.tokenIdCounter();
+
+      this.setState({
+        notification: notification,
+        timestamp: timestamp.toUTCString(),
+        balance: balance.toString(),
+        counter: counter.toString()
+      });
+    });
+  }
+
   render() {
     return (
       <Container style={{marginTop: 10}}>
+        {
+          this.state.notification ? (
+            <Message positive>
+              <Message.Header>New event at {this.state.timestamp}</Message.Header>
+              {this.state.notification}
+            </Message>
+          ) : null
+        }
         {
           this.state.owner === this.state.signerAddress ? (
             <React.Fragment>
