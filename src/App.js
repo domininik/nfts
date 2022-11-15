@@ -1,11 +1,13 @@
 import React from 'react';
 import { ethers } from 'ethers';
 import DFToken from './artifacts/contracts/DFToken.sol/DFToken.json';
-import { Container, Message, Segment } from 'semantic-ui-react';
+import { Container, Message, Segment, Menu } from 'semantic-ui-react';
+import Gallery from './Gallery.js';
 import Mint from './Mint.js';
 
 class App extends React.Component {
   state = {
+    activeItem: 'gallery',
     contract: null,
     signerAddress: '',
     owner: null,
@@ -73,6 +75,10 @@ class App extends React.Component {
     });
   }
 
+  handleItemClick = (event, { name }) => {
+    this.setState({ activeItem: name });
+  }
+
   render() {
     return (
       <Container style={{marginTop: 10}}>
@@ -87,16 +93,39 @@ class App extends React.Component {
         {
           this.state.owner === this.state.signerAddress ? (
             <React.Fragment>
-              <Message attached>
+              <Menu attached='top' tabular>
+                <Menu.Item
+                  name='gallery'
+                  active={this.state.activeItem === 'gallery'}
+                  onClick={this.handleItemClick}
+                />
+                <Menu.Item
+                  name='mint'
+                  active={this.state.activeItem === 'mint'}
+                  onClick={this.handleItemClick}
+                />
+              </Menu>
+              <Segment attached>
+                {
+                  this.state.activeItem === 'gallery' ? (
+                    <Gallery
+                      contract={this.state.contract}
+                    />
+                  ) : null
+                }
+                {
+                  this.state.activeItem === 'mint' ? (
+                    <Mint
+                      contract={this.state.contract}
+                      signerAddress={this.state.signerAddress}
+                    />
+                  ) : null
+                }
+              </Segment>
+              <Message>
                 <Message.Header>{ this.state.balance } owned by you</Message.Header>
                 { this.state.counter } available
               </Message>
-              <Segment attached>
-                <Mint
-                  contract={this.state.contract}
-                  signerAddress={this.state.signerAddress}
-                />
-              </Segment>
             </React.Fragment>
           ) : (
             <Message warning>
