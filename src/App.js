@@ -116,6 +116,7 @@ class App extends React.Component {
                   this.state.activeItem === 'gallery' ? (
                     <Gallery
                       contract={this.state.contract}
+                      signerAddress={this.state.signerAddress}
                     />
                   ) : null
                 }

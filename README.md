@@ -1,6 +1,6 @@
 # DFToken
 
-ERC721 Token (NFT) User Interface
+ERC721 Token (NFT) Marketplace
 
 ## Getting started
 

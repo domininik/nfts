@@ -1,10 +1,10 @@
 import React from 'react';
-import { Form, Input, Message, Button, Table } from 'semantic-ui-react';
+import { Form, Message, Table } from 'semantic-ui-react';
+import Sell from './Sell.js';
 
 class Gallery extends React.Component {
   state = {
     errorMessage: '',
-    tokenId: this.props.signerAddress,
     tokenId: '',
     owner: '',
     uri: '',
@@ -64,6 +64,15 @@ class Gallery extends React.Component {
             <Form.Button primary content='Get Price' onClick={this.getPrice} />
           </Form.Group>
         </Form>
+        {
+          this.state.owner === this.props.signerAddress ? (
+            <Sell
+              contract={this.props.contract}
+              signerAddress={this.state.signerAddress}
+              tokenId={this.state.tokenId}
+            />
+          ) : null
+        }
         <Table definition>
           <Table.Body>
             <Table.Row>
