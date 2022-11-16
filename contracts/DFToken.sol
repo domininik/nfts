@@ -9,7 +9,17 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 contract DFToken is ERC721, ERC721URIStorage, Ownable {
     using Counters for Counters.Counter;
 
+    struct Bid {
+        address trader;
+        uint value;
+        uint tokenId;
+    }
+
     Counters.Counter public tokenIdCounter;
+    Bid[] public bids;
+    mapping (uint => uint) public bidToToken;
+    mapping (uint => uint) public tokenBidsCount;
+    mapping (uint => uint) public price;
 
     constructor() ERC721("DFToken", "DFT") {}
 
@@ -33,5 +43,43 @@ contract DFToken is ERC721, ERC721URIStorage, Ownable {
         returns (string memory)
     {
         return super.tokenURI(tokenId);
+    }
+
+    //
+
+    function setPrice(uint tokenId, uint value) public {
+        require(ownerOf(tokenId) == msg.sender, "You are not the item owner");
+
+        price[tokenId] = value;
+    }
+
+    function bid(uint tokenId, uint value) public {
+        require(price[tokenId] > 0, "Item is not for sale");
+
+        bids.push(Bid(msg.sender, value, tokenId));
+        uint id = bids.length - 1;
+        bidToToken[id] = tokenId;
+        tokenBidsCount[tokenId]++;
+    }
+
+    function getBidsByToken(uint tokenId) public view returns(uint[] memory) {
+        uint[] memory result = new uint[](tokenBidsCount[tokenId]);
+        uint counter = 0;
+
+        for (uint i = 0; i < bids.length; i ++) {
+            if (bidToToken[i] == tokenId) {
+                result[counter] = i;
+                counter++;
+            }
+        }
+        return result;
+    }
+
+    function buy(uint tokenId) public payable {
+        require(price[tokenId] > 0, "Item is not for sale");
+        require(price[tokenId] == msg.value, "Price is not met");
+
+        price[tokenId] = 0;
+        transferFrom(ownerOf(tokenId), msg.sender, tokenId);
     }
 }
