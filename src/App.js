@@ -4,6 +4,7 @@ import DFToken from './artifacts/contracts/DFToken.sol/DFToken.json';
 import { Container, Message, Segment, Menu } from 'semantic-ui-react';
 import Gallery from './Gallery.js';
 import Mint from './Mint.js';
+import Transfer from './Transfer';
 
 class App extends React.Component {
   state = {
@@ -104,6 +105,11 @@ class App extends React.Component {
                   active={this.state.activeItem === 'mint'}
                   onClick={this.handleItemClick}
                 />
+                <Menu.Item
+                  name='transfer'
+                  active={this.state.activeItem === 'transfer'}
+                  onClick={this.handleItemClick}
+                />
               </Menu>
               <Segment attached>
                 {
@@ -116,6 +122,14 @@ class App extends React.Component {
                 {
                   this.state.activeItem === 'mint' ? (
                     <Mint
+                      contract={this.state.contract}
+                      signerAddress={this.state.signerAddress}
+                    />
+                  ) : null
+                }
+                {
+                  this.state.activeItem === 'transfer' ? (
+                    <Transfer
                       contract={this.state.contract}
                       signerAddress={this.state.signerAddress}
                     />
