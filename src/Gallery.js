@@ -7,7 +7,8 @@ class Gallery extends React.Component {
     tokenId: this.props.signerAddress,
     tokenId: '',
     owner: '',
-    uri: ''
+    uri: '',
+    price: ''
   }
 
   onSubmit = (event) => {
@@ -36,6 +37,17 @@ class Gallery extends React.Component {
     }
   }
 
+  getPrice = async () => {
+    this.setState({ errorMessage: '' });
+
+    try {
+      const price = await this.props.contract.price(this.state.tokenId);
+      this.setState({ price: price.toString() });
+    } catch (error) {
+      this.setState({ errorMessage: error.message });
+    }
+  }
+
   render() {
     return(
       <React.Fragment>
@@ -49,6 +61,7 @@ class Gallery extends React.Component {
             />
             <Form.Button primary content='Get Owner' onClick={this.getOwner} />
             <Form.Button primary content='Get URI' onClick={this.getUri} />
+            <Form.Button primary content='Get Price' onClick={this.getPrice} />
           </Form.Group>
         </Form>
         <Table definition>
@@ -60,6 +73,10 @@ class Gallery extends React.Component {
             <Table.Row>
               <Table.Cell>URI</Table.Cell>
               <Table.Cell>{ this.state.uri }</Table.Cell>
+            </Table.Row>
+            <Table.Row>
+              <Table.Cell>price</Table.Cell>
+              <Table.Cell>{ this.state.price }</Table.Cell>
             </Table.Row>
           </Table.Body>
         </Table>
