@@ -27,6 +27,10 @@ class Gallery extends React.Component {
     }
   }
 
+  onPriceChange = (value) => {
+    this.setState({ price: value });
+  }
+
   render() {
     return(
       <React.Fragment>
@@ -47,6 +51,7 @@ class Gallery extends React.Component {
               contract={this.props.contract}
               signerAddress={this.state.signerAddress}
               tokenId={this.state.tokenId}
+              onPriceChange={this.onPriceChange}
             />
           ) : null
         }

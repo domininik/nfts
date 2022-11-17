@@ -19,6 +19,7 @@ class Sell extends React.Component {
         this.props.tokenId,
         this.state.value
       );
+      this.props.onPriceChange(this.state.value);
     } catch (error) {
       this.setState({ errorMessage: error.message });
     }
