@@ -75,6 +75,17 @@ class App extends React.Component {
         counter: counter.toString()
       });
     });
+
+    contract.on('Approval', async (owner, approved, tokenId, event) => {
+      const notification = `Token #${tokenId} approved for ${approved} by ${owner}`;
+      const block = await event.getBlock();
+      const timestamp = new Date(block.timestamp * 1000);
+
+      this.setState({
+        notification: notification,
+        timestamp: timestamp.toUTCString()
+      });
+    });
   }
 
   handleItemClick = (event, { name }) => {

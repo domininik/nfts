@@ -1,22 +1,32 @@
 import React from 'react';
-import { Form, Table } from 'semantic-ui-react';
+import { Form, Table, Message } from 'semantic-ui-react';
 import BidRow from './BidRow';
 
 class Approve extends React.Component {
   state = {
     tokenId: '',
-    bidIds: []
+    bidIds: [],
+    tokenOwner: null
   }
 
-  getBidsByToken = async (event) => {
+  search = async (event) => {
     event.preventDefault();
 
     try {
       const bidIds = await this.props.contract.getBidsByToken(this.state.tokenId);
-      this.setState({ bidIds: bidIds });
+      const tokenOwner = await this.props.contract.ownerOf(this.state.tokenId);
+
+      this.setState({
+        bidIds: bidIds,
+        tokenOwner: tokenOwner
+      });
     } catch (error) {
       console.log(error.message);
     }
+  }
+
+  onError = async (message) => {
+    this.setState({ errorMessage: message });
   }
 
   renderRows() {
@@ -27,6 +37,10 @@ class Approve extends React.Component {
           index={index}
           bidId={bidId}
           contract={this.props.contract}
+          signerAddress={this.props.signerAddress}
+          tokenId={this.state.tokenId}
+          tokenOwner={this.state.tokenOwner}
+          onError={this.onError}
         />
       )
     })
@@ -35,14 +49,15 @@ class Approve extends React.Component {
   render() {
     return(
       <React.Fragment>
-        <Form onSubmit={this.getBidsByToken}>
+        <Form onSubmit={this.getBidsByToken} error={!!this.state.errorMessage}>
+          <Message error header="Error" content={this.state.errorMessage} />
           <Form.Group>
             <Form.Input
               placeholder='token id'
               value={this.state.tokenId}
               onChange={(e) => this.setState({ tokenId: e.target.value })}
             />
-            <Form.Button primary content='Search' onClick={this.getBidsByToken} />
+            <Form.Button primary content='Search' onClick={this.search} />
           </Form.Group>
         </Form>
 
@@ -52,7 +67,7 @@ class Approve extends React.Component {
               <Table.HeaderCell width={1}></Table.HeaderCell>
               <Table.HeaderCell width={2}>price</Table.HeaderCell>
               <Table.HeaderCell width={6}>trader</Table.HeaderCell>
-              <Table.HeaderCell>action</Table.HeaderCell>
+              <Table.HeaderCell>actions</Table.HeaderCell>
             </Table.Row>
           </Table.Header>
           <Table.Body>
