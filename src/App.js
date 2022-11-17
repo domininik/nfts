@@ -5,6 +5,7 @@ import { Container, Message, Segment, Menu } from 'semantic-ui-react';
 import Gallery from './Gallery.js';
 import Mint from './Mint.js';
 import Transfer from './Transfer';
+import Approve from './Approve';
 
 class App extends React.Component {
   state = {
@@ -98,17 +99,22 @@ class App extends React.Component {
               active={this.state.activeItem === 'gallery'}
               onClick={this.handleItemClick}
             />
+            <Menu.Item
+              name='bids'
+              active={this.state.activeItem === 'bids'}
+              onClick={this.handleItemClick}
+            />
             {
               this.state.owner === this.state.signerAddress ? (
                 <React.Fragment>
                   <Menu.Item
-                    name='mint'
-                    active={this.state.activeItem === 'mint'}
+                    name='transfer'
+                    active={this.state.activeItem === 'transfer'}
                     onClick={this.handleItemClick}
                   />
                   <Menu.Item
-                    name='transfer'
-                    active={this.state.activeItem === 'transfer'}
+                    name='mint'
+                    active={this.state.activeItem === 'mint'}
                     onClick={this.handleItemClick}
                   />
                 </React.Fragment>
@@ -135,6 +141,14 @@ class App extends React.Component {
             {
               this.state.activeItem === 'transfer' ? (
                 <Transfer
+                  contract={this.state.contract}
+                  signerAddress={this.state.signerAddress}
+                />
+              ) : null
+            }
+            {
+              this.state.activeItem === 'bids' ? (
+                <Approve
                   contract={this.state.contract}
                   signerAddress={this.state.signerAddress}
                 />
