@@ -1,22 +1,21 @@
 import React from 'react';
 import { Form, Message } from 'semantic-ui-react';
 
-class Sell extends React.Component {
+class Bid extends React.Component {
   state = {
     errorMessage: '',
     value: ''
   }
 
-  setPrice = async (event) => {
+  bid = async (event) => {
     event.preventDefault();
     this.setState({ errorMessage: '' });
 
     try {
-      await this.props.contract.setPrice(
+      await this.props.contract.bid(
         this.props.tokenId,
         this.state.value
       );
-      this.props.onPriceChange(this.state.value);
     } catch (error) {
       this.setState({ errorMessage: error.message });
     }
@@ -24,7 +23,7 @@ class Sell extends React.Component {
 
   render() {
     return(
-      <Form onSubmit={this.setPrice} error={!!this.state.errorMessage}>
+      <Form onSubmit={this.bid} error={!!this.state.errorMessage}>
         <Message error header="Error" content={this.state.errorMessage} />
         <Form.Group>
           <Form.Input
@@ -32,11 +31,11 @@ class Sell extends React.Component {
             value={this.state.value}
             onChange={(e) => this.setState({ value: e.target.value })}
           />
-          <Form.Button positive content='Set price' onClick={this.setPrice} />
+          <Form.Button positive content='Bid' onClick={this.bid} />
         </Form.Group>
       </Form>
     );
   }
 }
 
-export default Sell;
+export default Bid;

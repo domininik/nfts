@@ -1,6 +1,7 @@
 import React from 'react';
 import { Form, Message, Table } from 'semantic-ui-react';
 import Sell from './Sell.js';
+import Bid from './Bid.js';
 
 class Gallery extends React.Component {
   state = {
@@ -31,6 +32,10 @@ class Gallery extends React.Component {
     this.setState({ price: value });
   }
 
+  isOwner() {
+    return(this.state.owner === this.props.signerAddress);
+  }
+
   render() {
     return(
       <React.Fragment>
@@ -46,12 +51,21 @@ class Gallery extends React.Component {
           </Form.Group>
         </Form>
         {
-          this.state.owner === this.props.signerAddress ? (
+          this.isOwner() ? (
             <Sell
               contract={this.props.contract}
               signerAddress={this.state.signerAddress}
               tokenId={this.state.tokenId}
               onPriceChange={this.onPriceChange}
+            />
+          ) : null
+        }
+        {
+          !this.isOwner() && this.state.price && this.state.price !== '0' ? (
+            <Bid
+              contract={this.props.contract}
+              signerAddress={this.state.signerAddress}
+              tokenId={this.state.tokenId}
             />
           ) : null
         }

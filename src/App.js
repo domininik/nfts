@@ -84,70 +84,68 @@ class App extends React.Component {
     return (
       <Container style={{marginTop: 10}}>
         {
-          this.state.notification ? (
+          this.state.owner === this.state.signerAddress && this.state.notification ? (
             <Message positive>
               <Message.Header>New event at {this.state.timestamp}</Message.Header>
               {this.state.notification}
             </Message>
           ) : null
         }
-        {
-          this.state.owner === this.state.signerAddress ? (
-            <React.Fragment>
-              <Menu attached='top' tabular>
-                <Menu.Item
-                  name='gallery'
-                  active={this.state.activeItem === 'gallery'}
-                  onClick={this.handleItemClick}
+        <React.Fragment>
+          <Menu attached='top' tabular>
+            <Menu.Item
+              name='gallery'
+              active={this.state.activeItem === 'gallery'}
+              onClick={this.handleItemClick}
+            />
+            {
+              this.state.owner === this.state.signerAddress ? (
+                <React.Fragment>
+                  <Menu.Item
+                    name='mint'
+                    active={this.state.activeItem === 'mint'}
+                    onClick={this.handleItemClick}
+                  />
+                  <Menu.Item
+                    name='transfer'
+                    active={this.state.activeItem === 'transfer'}
+                    onClick={this.handleItemClick}
+                  />
+                </React.Fragment>
+              ) : null
+            }
+          </Menu>
+          <Segment attached>
+            {
+              this.state.activeItem === 'gallery' ? (
+                <Gallery
+                  contract={this.state.contract}
+                  signerAddress={this.state.signerAddress}
                 />
-                <Menu.Item
-                  name='mint'
-                  active={this.state.activeItem === 'mint'}
-                  onClick={this.handleItemClick}
+              ) : null
+            }
+            {
+              this.state.activeItem === 'mint' ? (
+                <Mint
+                  contract={this.state.contract}
+                  signerAddress={this.state.signerAddress}
                 />
-                <Menu.Item
-                  name='transfer'
-                  active={this.state.activeItem === 'transfer'}
-                  onClick={this.handleItemClick}
+              ) : null
+            }
+            {
+              this.state.activeItem === 'transfer' ? (
+                <Transfer
+                  contract={this.state.contract}
+                  signerAddress={this.state.signerAddress}
                 />
-              </Menu>
-              <Segment attached>
-                {
-                  this.state.activeItem === 'gallery' ? (
-                    <Gallery
-                      contract={this.state.contract}
-                      signerAddress={this.state.signerAddress}
-                    />
-                  ) : null
-                }
-                {
-                  this.state.activeItem === 'mint' ? (
-                    <Mint
-                      contract={this.state.contract}
-                      signerAddress={this.state.signerAddress}
-                    />
-                  ) : null
-                }
-                {
-                  this.state.activeItem === 'transfer' ? (
-                    <Transfer
-                      contract={this.state.contract}
-                      signerAddress={this.state.signerAddress}
-                    />
-                  ) : null
-                }
-              </Segment>
-              <Message>
-                <Message.Header>{ this.state.balance } owned by you</Message.Header>
-                { this.state.counter } available
-              </Message>
-            </React.Fragment>
-          ) : (
-            <Message warning>
-              <Message.Header>You are not authorized to access this page</Message.Header>
-            </Message>
-          )
-        }
+              ) : null
+            }
+          </Segment>
+          <Message>
+            <Message.Header>{ this.state.balance } owned by you</Message.Header>
+            { this.state.counter } available
+          </Message>
+        </React.Fragment>
       </Container>
     )
   }
