@@ -62,7 +62,13 @@ class Gallery extends React.Component {
             </Table.Row>
             <Table.Row>
               <Table.Cell>price</Table.Cell>
-              <Table.Cell>{ this.state.price }</Table.Cell>
+              <Table.Cell>
+                {
+                  this.state.price ? (
+                    this.state.price === '0' ? 'not for sale' : this.state.price
+                  ) : null
+                }
+              </Table.Cell>
             </Table.Row>
           </Table.Body>
         </Table>
