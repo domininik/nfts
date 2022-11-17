@@ -11,38 +11,17 @@ class Gallery extends React.Component {
     price: ''
   }
 
-  onSubmit = (event) => {
+  search = async (event) => {
     event.preventDefault();
-  }
-
-  getOwner = async () => {
     this.setState({ errorMessage: '' });
 
     try {
-      const owner = await this.props.contract.ownerOf(this.state.tokenId);
-      this.setState({ owner: owner });
-    } catch (error) {
-      this.setState({ errorMessage: error.message });
-    }
-  }
-
-  getUri = async () => {
-    this.setState({ errorMessage: '' });
-
-    try {
-      const uri = await this.props.contract.tokenURI(this.state.tokenId);
-      this.setState({ uri: uri });
-    } catch (error) {
-      this.setState({ errorMessage: error.message });
-    }
-  }
-
-  getPrice = async () => {
-    this.setState({ errorMessage: '' });
-
-    try {
-      const price = await this.props.contract.price(this.state.tokenId);
-      this.setState({ price: price.toString() });
+      const details = await this.props.contract.getDetails(this.state.tokenId);
+      this.setState({
+        owner: details[0],
+        uri: details[1],
+        price: details[2].toString()
+      });
     } catch (error) {
       this.setState({ errorMessage: error.message });
     }
@@ -51,7 +30,7 @@ class Gallery extends React.Component {
   render() {
     return(
       <React.Fragment>
-        <Form onSubmit={this.onSubmit} error={!!this.state.errorMessage}>
+        <Form onSubmit={this.search} error={!!this.state.errorMessage}>
           <Message error header="Error" content={this.state.errorMessage} />
           <Form.Group>
             <Form.Input
@@ -59,9 +38,7 @@ class Gallery extends React.Component {
               value={this.state.tokenId}
               onChange={(e) => this.setState({ tokenId: e.target.value })}
             />
-            <Form.Button primary content='Get Owner' onClick={this.getOwner} />
-            <Form.Button primary content='Get URI' onClick={this.getUri} />
-            <Form.Button primary content='Get Price' onClick={this.getPrice} />
+            <Form.Button primary content='Search' onClick={this.search} />
           </Form.Group>
         </Form>
         {

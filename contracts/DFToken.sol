@@ -47,6 +47,14 @@ contract DFToken is ERC721, ERC721URIStorage, Ownable {
 
     //
 
+    function getDetails(uint tokenId) public view returns(address, string memory, uint) {
+        return (
+            ownerOf(tokenId),
+            tokenURI(tokenId),
+            price[tokenId]
+        );
+    }
+
     function setPrice(uint tokenId, uint value) public {
         require(ownerOf(tokenId) == msg.sender, "You are not the item owner");
 
