@@ -21,7 +21,10 @@ contract DFToken is ERC721, ERC721URIStorage, Ownable {
     mapping (uint => uint) public tokenBidsCount;
     mapping (uint => uint) public price;
 
-    constructor() ERC721("DFToken", "DFT") {}
+    constructor() ERC721("DFToken", "DFT") {
+        // start counter with 1 instead of 0
+        tokenIdCounter.increment();
+    }
 
     function safeMint(address to, string memory uri) public onlyOwner {
         uint256 tokenId = tokenIdCounter.current();
@@ -88,6 +91,14 @@ contract DFToken is ERC721, ERC721URIStorage, Ownable {
         require(price[tokenId] == msg.value, "Price is not met");
 
         price[tokenId] = 0;
+        tokenBidsCount[tokenId] = 0;
+
+        for (uint i = 0; i < bids.length; i ++) {
+            if (bidToToken[i] == tokenId) {
+                bidToToken[i] = 0;
+            }
+        }
+
         transferFrom(ownerOf(tokenId), msg.sender, tokenId);
     }
 }

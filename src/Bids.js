@@ -53,7 +53,7 @@ class Bids extends React.Component {
   render() {
     return(
       <React.Fragment>
-        <Form onSubmit={this.getBidsByToken} error={!!this.state.errorMessage}>
+        <Form onSubmit={this.search} error={!!this.state.errorMessage}>
           <Message error header="Error" content={this.state.errorMessage} />
           <Form.Group>
             <Form.Input

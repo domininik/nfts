@@ -41,7 +41,7 @@ class App extends React.Component {
       contract = new ethers.Contract(contractAddress, DFToken.abi, signer);
       const owner = await contract.owner();
       const balance = await contract.balanceOf(signerAddress);
-      const counter = await contract.tokenIdCounter();
+      const counter = await contract.tokenIdCounter() - 1;
 
       this.addListeners(contract);
 
@@ -66,7 +66,7 @@ class App extends React.Component {
       const block = await event.getBlock();
       const timestamp = new Date(block.timestamp * 1000);
       const balance = await contract.balanceOf(this.state.signerAddress);
-      const counter = await contract.tokenIdCounter();
+      const counter = await contract.tokenIdCounter() - 1;
 
       this.setState({
         notification: notification,
