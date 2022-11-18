@@ -2,7 +2,7 @@ import React from 'react';
 import { Form, Table, Message } from 'semantic-ui-react';
 import BidRow from './BidRow';
 
-class Approve extends React.Component {
+class Bids extends React.Component {
   state = {
     tokenId: '',
     bidIds: [],
@@ -83,4 +83,4 @@ class Approve extends React.Component {
   }
 }
 
-export default Approve;
+export default Bids;

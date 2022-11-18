@@ -5,7 +5,7 @@ import { Container, Message, Segment, Menu } from 'semantic-ui-react';
 import Gallery from './Gallery.js';
 import Mint from './Mint.js';
 import Transfer from './Transfer';
-import Approve from './Approve';
+import Bids from './Bids';
 
 class App extends React.Component {
   state = {
@@ -159,7 +159,7 @@ class App extends React.Component {
             }
             {
               this.state.activeItem === 'bids' ? (
-                <Approve
+                <Bids
                   contract={this.state.contract}
                   signerAddress={this.state.signerAddress}
                 />
