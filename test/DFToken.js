@@ -16,6 +16,12 @@ describe("DFToken", function () {
 
       expect(await token.owner()).to.equal(owner.address);
     });
+
+    it("Initializes tokenIdCounter with default value as 1", async function () {
+      const { token } = await loadFixture(deployFixture);
+
+      expect(await token.tokenIdCounter()).to.equal(1);
+    })
   });
 
   describe("Minting", function () {
@@ -23,7 +29,7 @@ describe("DFToken", function () {
       const { token, otherAccount } = await loadFixture(deployFixture);
       await token.safeMint(otherAccount.address, '');
 
-      expect(await token.ownerOf(0)).to.equal(otherAccount.address);
+      expect(await token.ownerOf(1)).to.equal(otherAccount.address);
     });
 
     it("Updates token owner balance", async function () {
@@ -37,14 +43,14 @@ describe("DFToken", function () {
       const { token, otherAccount } = await loadFixture(deployFixture);
       await token.safeMint(otherAccount.address, '');
 
-      expect(await token.tokenIdCounter()).to.equal(1);
+      expect(await token.tokenIdCounter()).to.equal(2);
     });
 
     it("Sets token URI", async function () {
       const { token, otherAccount } = await loadFixture(deployFixture);
       await token.safeMint(otherAccount.address, "http://example.com");
 
-      expect(await token.tokenURI(0)).to.equal("http://example.com");
+      expect(await token.tokenURI(1)).to.equal("http://example.com");
     });
   });
 });
