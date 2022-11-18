@@ -2,6 +2,7 @@ import React from 'react';
 import { Form, Message, Table } from 'semantic-ui-react';
 import Sell from './Sell.js';
 import Bid from './Bid.js';
+import Buy from './Buy.js';
 
 class Gallery extends React.Component {
   state = {
@@ -9,7 +10,8 @@ class Gallery extends React.Component {
     tokenId: '',
     owner: '',
     uri: '',
-    price: ''
+    price: '',
+    approvedAddress: null
   }
 
   search = async (event) => {
@@ -18,10 +20,13 @@ class Gallery extends React.Component {
 
     try {
       const details = await this.props.contract.getDetails(this.state.tokenId);
+      const approvedAddress = await this.props.contract.getApproved(this.state.tokenId);
+
       this.setState({
         owner: details[0],
         uri: details[1],
-        price: details[2].toString()
+        price: details[2].toString(),
+        approvedAddress: approvedAddress
       });
     } catch (error) {
       this.setState({ errorMessage: error.message });
@@ -54,18 +59,30 @@ class Gallery extends React.Component {
           this.isOwner() ? (
             <Sell
               contract={this.props.contract}
-              signerAddress={this.state.signerAddress}
+              signerAddress={this.props.signerAddress}
               tokenId={this.state.tokenId}
               onPriceChange={this.onPriceChange}
             />
           ) : null
         }
         {
-          !this.isOwner() && this.state.price && this.state.price !== '0' ? (
+          !this.isOwner()
+            && this.state.price
+            && this.state.price !== '0'
+            && this.props.signerAddress !== this.state.approvedAddress ? (
             <Bid
               contract={this.props.contract}
-              signerAddress={this.state.signerAddress}
+              signerAddress={this.props.signerAddress}
               tokenId={this.state.tokenId}
+            />
+          ) : null
+        }
+        {
+          this.props.signerAddress === this.state.approvedAddress ? (
+            <Buy
+              contract={this.props.contract}
+              tokenId={this.state.tokenId}
+              price={this.state.price}
             />
           ) : null
         }
