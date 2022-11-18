@@ -6,7 +6,8 @@ class Approve extends React.Component {
   state = {
     tokenId: '',
     bidIds: [],
-    tokenOwner: null
+    tokenOwner: null,
+    approvedAddress: null
   }
 
   search = async (event) => {
@@ -15,10 +16,12 @@ class Approve extends React.Component {
     try {
       const bidIds = await this.props.contract.getBidsByToken(this.state.tokenId);
       const tokenOwner = await this.props.contract.ownerOf(this.state.tokenId);
+      const approvedAddress = await this.props.contract.getApproved(this.state.tokenId);
 
       this.setState({
         bidIds: bidIds,
-        tokenOwner: tokenOwner
+        tokenOwner: tokenOwner,
+        approvedAddress: approvedAddress
       });
     } catch (error) {
       console.log(error.message);
@@ -40,6 +43,7 @@ class Approve extends React.Component {
           signerAddress={this.props.signerAddress}
           tokenId={this.state.tokenId}
           tokenOwner={this.state.tokenOwner}
+          approvedAddress={this.state.approvedAddress}
           onError={this.onError}
         />
       )

@@ -45,7 +45,8 @@ class BidRow extends React.Component {
         <Table.Cell>
           <Button content='Get details' onClick={this.getBidById} />
           {
-            this.props.tokenOwner === this.props.signerAddress ? (
+            (this.props.tokenOwner === this.props.signerAddress) &&
+              (this.state.trader && this.props.approvedAddress !== this.state.trader) ? (
               <Button positive content='Approve' onClick={this.approve} />
             ) : null
           }
