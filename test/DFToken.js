@@ -80,7 +80,7 @@ describe("DFToken", function () {
 
   describe("Details", function () {
     it("Returns overview of token in one call", async function () {
-      const { token, owner } = await loadFixture(deployFixture);
+      const { token, owner, otherAccount } = await loadFixture(deployFixture);
       await token.safeMint(owner.address, "http://example.com");
       await token.setPrice(1, 1000);
 
@@ -94,48 +94,48 @@ describe("DFToken", function () {
 
   describe("Bidding", function () {
     it("Reverts if item is not for sale (price is 0)", async function () {
-      const { token, owner } = await loadFixture(deployFixture);
+      const { token, owner, otherAccount } = await loadFixture(deployFixture);
       await token.safeMint(owner.address, "");
 
-      await expect(token.bid(1, 1000)).to.be.revertedWith("Item is not for sale");
+      await expect(token.connect(otherAccount).bid(1, 1000)).to.be.revertedWith("Item is not for sale");
     });
 
     it("Creates new bid record", async function () {
-      const { token, owner } = await loadFixture(deployFixture);
+      const { token, owner, otherAccount } = await loadFixture(deployFixture);
       await token.safeMint(owner.address, "");
       await token.setPrice(1, 1000);
-      await token.bid(1, 1000);
+      await token.connect(otherAccount).bid(1, 1000);
 
       const bid = await token.bids(0);
 
       expect(bid.tokenId).to.equal(1);
       expect(bid.value).to.equal(1000);
-      expect(bid.trader).to.equal(owner.address);
+      expect(bid.trader).to.equal(otherAccount.address);
     });
 
     it("Saves bid-to-token mapping", async function () {
-      const { token, owner } = await loadFixture(deployFixture);
+      const { token, owner, otherAccount } = await loadFixture(deployFixture);
       await token.safeMint(owner.address, "");
       await token.setPrice(1, 1000);
-      await token.bid(1, 1000);
+      await token.connect(otherAccount).bid(1, 1000);
 
       expect(await token.bidToToken(0)).to.equal(1);
     });
 
     it("Updates token bids counter", async function () {
-      const { token, owner } = await loadFixture(deployFixture);
+      const { token, owner, otherAccount } = await loadFixture(deployFixture);
       await token.safeMint(owner.address, "");
       await token.setPrice(1, 1000);
-      await token.bid(1, 1000);
+      await token.connect(otherAccount).bid(1, 1000);
 
       expect(await token.tokenBidsCount(1)).to.equal(1);
     });
 
     it("Returns bid ids of given token", async function () {
-      const { token, owner } = await loadFixture(deployFixture);
+      const { token, owner, otherAccount } = await loadFixture(deployFixture);
       await token.safeMint(owner.address, "");
       await token.setPrice(1, 1000);
-      await token.bid(1, 1000);
+      await token.connect(otherAccount).bid(1, 1000);
 
       const ids = await token.getBidsByToken(1);
 
@@ -146,18 +146,90 @@ describe("DFToken", function () {
 
   describe("Buying", function () {
     it("Reverts if item is not for sale", async function () {
-      const { token, owner } = await loadFixture(deployFixture);
+      const { token, owner, otherAccount } = await loadFixture(deployFixture);
       await token.safeMint(owner.address, "");
 
-      await expect(token.buy(1)).to.be.revertedWith("Item is not for sale");
+      await expect(token.connect(otherAccount).buy(1)).to.be.revertedWith("Item is not for sale");
     });
 
     it("Reverts if price is not met", async function () {
-      const { token, owner } = await loadFixture(deployFixture);
+      const { token, owner, otherAccount } = await loadFixture(deployFixture);
       await token.safeMint(owner.address, "");
       await token.setPrice(1, 1000);
 
-      await expect(token.buy(1)).to.be.revertedWith("Price is not met");
+      await expect(token.connect(otherAccount).buy(1)).to.be.revertedWith("Price is not met");
+    });
+
+    it("Reverts if trader is not approved", async function () {
+      const { token, owner, otherAccount } = await loadFixture(deployFixture);
+      await token.safeMint(owner.address, "");
+      await token.setPrice(1, 1000);
+
+      await expect(token.connect(otherAccount).buy(1, { value: 1000 })).to.be.reverted;
+    });
+
+    it("Does not revert if trader is approved", async function () {
+      const { token, owner, otherAccount } = await loadFixture(deployFixture);
+      await token.safeMint(owner.address, "");
+      await token.setPrice(1, 1000);
+      await token.approve(otherAccount.address, 1);
+
+      await expect(token.connect(otherAccount).buy(1, { value: 1000 })).not.to.be.reverted;
+    });
+
+    it("Transfers token ownership", async function () {
+      const { token, owner, otherAccount } = await loadFixture(deployFixture);
+      await token.safeMint(owner.address, "");
+      await token.setPrice(1, 1000);
+      await token.approve(otherAccount.address, 1);
+      await token.connect(otherAccount).buy(1, { value: 1000 });
+
+      expect(await token.ownerOf(1)).to.equal(otherAccount.address);
+    });
+
+    it("Resets token price", async function () {
+      const { token, owner, otherAccount } = await loadFixture(deployFixture);
+      await token.safeMint(owner.address, "");
+      await token.setPrice(1, 1000);
+      await token.approve(otherAccount.address, 1);
+      await token.connect(otherAccount).buy(1, { value: 1000 });
+
+      expect(await token.price(1)).to.equal(0);
+    });
+
+    it("Resets token bids counter", async function () {
+      const { token, owner, otherAccount } = await loadFixture(deployFixture);
+      await token.safeMint(owner.address, "");
+      await token.setPrice(1, 1000);
+      await token.connect(otherAccount).bid(1, 1000);
+      await token.approve(otherAccount.address, 1);
+      await token.connect(otherAccount).buy(1, { value: 1000 });
+
+      expect(await token.tokenBidsCount(1)).to.equal(0);
+    });
+
+    it("Resets bid-to-token mappings", async function () {
+      const { token, owner, otherAccount } = await loadFixture(deployFixture);
+      await token.safeMint(owner.address, "");
+      await token.setPrice(1, 1000);
+      await token.connect(otherAccount).bid(1, 1000);
+      await token.approve(otherAccount.address, 1);
+      await token.connect(otherAccount).buy(1, { value: 1000 });
+
+      expect(await token.bidToToken(0)).to.equal(0);
+    });
+
+    it("Does not return bid ids of just bought token", async function () {
+      const { token, owner, otherAccount } = await loadFixture(deployFixture);
+      await token.safeMint(owner.address, "");
+      await token.setPrice(1, 1000);
+      await token.connect(otherAccount).bid(1, 1000);
+      await token.approve(otherAccount.address, 1);
+      await token.connect(otherAccount).buy(1, { value: 1000 });
+
+      const ids = await token.getBidsByToken(1);
+
+      expect(ids.length).to.eq(0);
     });
   });
 });
