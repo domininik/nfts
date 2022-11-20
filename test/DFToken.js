@@ -144,6 +144,32 @@ describe("DFToken", function () {
     });
   });
 
+  describe("Approving", function () {
+    it("Stores which account is approved for given token", async function () {
+      const { token, owner, otherAccount } = await loadFixture(deployFixture);
+      await token.safeMint(owner.address, "");
+      await token.approve(otherAccount.address, 1);
+
+      expect(await token.getApproved(1)).to.equal(otherAccount.address);
+    });
+
+    it("Emits approval event", async function () {
+      const { token, owner, otherAccount } = await loadFixture(deployFixture);
+      await token.safeMint(owner.address, "");
+
+      await expect(
+        token.approve(otherAccount.address, 1)
+      ).to.emit(token, "Approval").withArgs(owner.address, otherAccount.address, 1);
+    });
+
+    it("Reverts when caller is not the token owner", async function () {
+      const { token, owner, otherAccount } = await loadFixture(deployFixture);
+      await token.safeMint(owner.address, "");
+
+      await expect(token.connect(otherAccount).approve(otherAccount.address, 1)).to.be.reverted;
+    });
+  });
+
   describe("Buying", function () {
     it("Reverts if item is not for sale", async function () {
       const { token, owner, otherAccount } = await loadFixture(deployFixture);
@@ -177,6 +203,17 @@ describe("DFToken", function () {
       await expect(token.connect(otherAccount).buy(1, { value: 1000 })).not.to.be.reverted;
     });
 
+    it("Updates account balances", async function () {
+      const { token, owner, otherAccount } = await loadFixture(deployFixture);
+      await token.safeMint(owner.address, "");
+      await token.setPrice(1, 1000);
+      await token.approve(otherAccount.address, 1);
+
+      await expect(
+        token.connect(otherAccount).buy(1, { value: 1000 })
+      ).to.changeTokenBalances(token, [owner, otherAccount], [-1, 1]);
+    });
+
     it("Transfers token ownership", async function () {
       const { token, owner, otherAccount } = await loadFixture(deployFixture);
       await token.safeMint(owner.address, "");
@@ -185,6 +222,17 @@ describe("DFToken", function () {
       await token.connect(otherAccount).buy(1, { value: 1000 });
 
       expect(await token.ownerOf(1)).to.equal(otherAccount.address);
+    });
+
+    it("Emits transfer event", async function () {
+      const { token, owner, otherAccount } = await loadFixture(deployFixture);
+      await token.safeMint(owner.address, "");
+      await token.setPrice(1, 1000);
+      await token.approve(otherAccount.address, 1);
+
+      await expect(
+        token.connect(otherAccount).buy(1, { value: 1000 })
+      ).to.emit(token, "Transfer").withArgs(owner.address, otherAccount.address, 1);
     });
 
     it("Resets token price", async function () {
