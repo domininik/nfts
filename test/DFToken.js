@@ -203,15 +203,29 @@ describe("DFToken", function () {
       await expect(token.connect(otherAccount).buy(1, { value: 1000 })).not.to.be.reverted;
     });
 
-    it("Updates account balances", async function () {
+    it("Updates account ether balances", async function () {
       const { token, owner, otherAccount } = await loadFixture(deployFixture);
       await token.safeMint(owner.address, "");
       await token.setPrice(1, 1000);
       await token.approve(otherAccount.address, 1);
 
-      await expect(
-        token.connect(otherAccount).buy(1, { value: 1000 })
-      ).to.changeTokenBalances(token, [owner, otherAccount], [-1, 1]);
+      await expect(token.connect(otherAccount).buy(1, { value: 1000 })).to.changeEtherBalances(
+        [owner, otherAccount], 
+        [1000, -1000]
+      );
+    });
+
+    it("Updates account token balances", async function () {
+      const { token, owner, otherAccount } = await loadFixture(deployFixture);
+      await token.safeMint(owner.address, "");
+      await token.setPrice(1, 1000);
+      await token.approve(otherAccount.address, 1);
+
+      await expect(token.connect(otherAccount).buy(1, { value: 1000 })).to.changeTokenBalances(
+        token,
+        [owner, otherAccount], 
+        [-1, 1]
+      );
     });
 
     it("Transfers token ownership", async function () {

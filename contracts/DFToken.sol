@@ -90,6 +90,9 @@ contract DFToken is ERC721, ERC721URIStorage, Ownable {
         require(price[tokenId] > 0, "Item is not for sale");
         require(price[tokenId] == msg.value, "Price is not met");
 
+        address payable userPayable = payable(ownerOf(tokenId));
+        userPayable.transfer(price[tokenId]);
+
         price[tokenId] = 0;
         tokenBidsCount[tokenId] = 0;
 
