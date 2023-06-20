@@ -1,4 +1,4 @@
-# DFToken
+# DFT
 
 ERC721 Token (NFT) Marketplace
 
