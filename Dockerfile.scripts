@@ -1,0 +1,17 @@
+# Start your image with a node base image
+FROM node:18-alpine
+
+# The /app directory should act as the main application directory
+WORKDIR /app
+
+# Copy package.json and package-lock.json
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Copy the rest of the files
+COPY . .
+
+# Deploy contracts
+CMD [ "npx", "hardhat", "run", "scripts/deploy.js", "--network", "docker"]

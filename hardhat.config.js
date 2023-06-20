@@ -7,8 +7,8 @@ module.exports = {
     artifacts: "./src/artifacts",
   },
   networks: {
-    hardhat: {
-      chainId: 1337
-    },
+    docker: {
+      url: "http://node:8545"
+    }
   }
 };

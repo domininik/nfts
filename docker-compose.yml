@@ -1,0 +1,25 @@
+version: '2'
+
+services:
+  node:
+    build: 
+      context: ./ 
+      dockerfile: Dockerfile.node
+    ports:
+      - "8545:8545"
+
+  scripts:
+    build:
+      context: .
+      dockerfile: Dockerfile.scripts
+    depends_on:
+      - node
+
+  client:
+    build:
+      context: ./
+      dockerfile: Dockerfile.client
+    depends_on:
+      - scripts
+    ports:
+      - "3000:3000"
