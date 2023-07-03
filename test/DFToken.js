@@ -332,4 +332,60 @@ describe("DFToken", function () {
       expect(await token.bidToToken(0)).to.equal(0);
     });
   });
+
+  describe("Burning", function () {
+    it("Updates token id counter", async function () {
+      const { token, owner } = await loadFixture(deployFixture);
+      await token.safeMint(owner.address, "#1");
+      await token.safeMint(owner.address, "#2");
+      await token.safeMint(owner.address, "#3");
+
+      await token.safeBurn(1);
+
+      expect(await token.tokenIdCounter()).to.equal(3);
+    });
+
+    it("Cleans token's bids", async function () {
+      const { token, owner, otherAccount } = await loadFixture(deployFixture);
+      await token.safeMint(owner.address, "#1");
+      await token.safeMint(owner.address, "#2");
+      await token.safeMint(owner.address, "#3");
+      await token.setPrice(1, 1000);
+      await token.setPrice(2, 500);
+      await token.setPrice(3, 250);
+      await token.connect(otherAccount).bid(1, 1000);
+      await token.connect(otherAccount).bid(2, 500);
+      await token.connect(otherAccount).bid(3, 250);
+
+      await token.safeBurn(1);
+
+      expect(await token.tokenBidsCount(1)).to.equal(0);
+      expect(await token.getBidsByToken(1)).to.be.empty;
+    });
+
+    it("Cleans token's price", async function () {
+      const { token, owner, otherAccount } = await loadFixture(deployFixture);
+      await token.safeMint(owner.address, "#1");
+      await token.safeMint(owner.address, "#2");
+      await token.safeMint(owner.address, "#3");
+      await token.setPrice(1, 1000);
+      await token.setPrice(2, 500);
+      await token.setPrice(3, 250);
+      await token.connect(otherAccount).bid(1, 1000);
+      await token.connect(otherAccount).bid(2, 500);
+      await token.connect(otherAccount).bid(3, 250);
+
+      await token.safeBurn(1);
+
+      expect(await token.price(1)).to.equal(0);
+    });
+
+    it("Reverts when performed by non-owner", async function () {
+      const { token, otherAccount } = await loadFixture(deployFixture);
+      await token.safeMint(otherAccount.address, "#1");
+
+      await expect(token.connect(otherAccount).safeBurn(1))
+        .to.be.revertedWith("Ownable: caller is not the owner");
+    });
+  });
 });
