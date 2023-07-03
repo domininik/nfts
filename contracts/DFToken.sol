@@ -33,6 +33,13 @@ contract DFToken is ERC721, ERC721URIStorage, Ownable {
         _setTokenURI(tokenId, uri);
     }
 
+    function safeBurn(uint tokenId) public onlyOwner {
+        _burn(tokenId);
+        cleanBids(tokenId);
+        cleanPrice(tokenId);
+        tokenIdCounter.decrement();
+    }
+
     // The following functions are overrides required by Solidity.
 
     function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) {
