@@ -59,6 +59,13 @@ describe("DFToken", function () {
 
       expect(await token.price(1)).to.equal(0);
     });
+
+    it("Fails when it's called by non-owner", async function () {
+      const { token, otherAccount } = await loadFixture(deployFixture);
+
+      await expect(token.connect(otherAccount).safeMint(otherAccount.address, ""))
+       .to.be.revertedWith("Ownable: caller is not the owner");
+    });
   });
 
   describe("Pricing", function () {
