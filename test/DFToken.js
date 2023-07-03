@@ -265,7 +265,7 @@ describe("DFToken", function () {
   });
 
   describe("Burning", function () {
-    it("Updates token id counter", async function () {
+    it("Does not decrement token id counter", async function () {
       const { token, owner } = await loadFixture(deployFixture);
       await token.safeMint(owner.address, "#1");
       await token.safeMint(owner.address, "#2");
@@ -273,8 +273,8 @@ describe("DFToken", function () {
 
       await token.safeBurn(1);
 
-      // await token.safeMint(owner.address, "#4");
-      // expect(await token.tokenURI(4)).to.equal("#4");
+      await token.safeMint(owner.address, "#4");
+      expect(await token.tokenURI(4)).to.equal("#4");
     });
 
     it("Cleans token's bids", async function () {
