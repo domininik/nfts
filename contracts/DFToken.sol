@@ -15,11 +15,11 @@ contract DFToken is ERC721, ERC721URIStorage, Ownable {
         uint tokenId;
     }
 
-    Counters.Counter public s_tokenIdCounter;
-    Bid[] public s_bids;
-    mapping (uint => uint) public s_bidToToken;
-    mapping (uint => uint) public s_tokenBidsCount;
-    mapping (uint => uint) public s_price;
+    Counters.Counter private s_tokenIdCounter;
+    Bid[] private s_bids;
+    mapping (uint => uint) private s_bidToToken;
+    mapping (uint => uint) private s_tokenBidsCount;
+    mapping (uint => uint) private s_price;
 
     constructor() ERC721("DFToken", "DFT") {
         // start counter with 1 instead of 0
@@ -69,6 +69,10 @@ contract DFToken is ERC721, ERC721URIStorage, Ownable {
         require(ownerOf(tokenId) == msg.sender, "You are not the item owner");
 
         s_price[tokenId] = value;
+    }
+
+    function getPrice(uint tokenId) public view returns(uint) {
+        return s_price[tokenId];
     }
 
     function bid(uint tokenId, uint value) public {
