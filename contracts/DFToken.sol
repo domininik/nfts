@@ -96,6 +96,10 @@ contract DFToken is ERC721, ERC721URIStorage, Ownable {
         return result;
     }
 
+    function getBid(uint id) public view returns(Bid memory) {
+        return s_bids[id];
+    }
+
     function buy(uint tokenId) public payable {
         require(s_price[tokenId] > 0, "Item is not for sale");
         require(s_price[tokenId] == msg.value, "Price is not met");

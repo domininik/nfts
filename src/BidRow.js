@@ -12,7 +12,7 @@ class BidRow extends React.Component {
     this.setState({ errorMessage: '' });
 
     try {
-      const bid = await this.props.contract.bids(this.props.bidId);
+      const bid = await this.props.contract.getBid(this.props.bidId);
 
       this.setState({
         price: bid.value.toString(),

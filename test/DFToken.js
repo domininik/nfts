@@ -94,7 +94,7 @@ describe("DFToken", function () {
       await expect(token.connect(otherAccount).bid(1, 1000)).to.be.revertedWith("Item is not for sale");
     });
 
-    it("Returns bid ids of given token", async function () {
+    it("Returns bid indexes of given token", async function () {
       const { token, owner, otherAccount } = await loadFixture(deployFixture);
       await token.safeMint(owner.address, "");
       await token.setPrice(1, 1000);
@@ -104,6 +104,19 @@ describe("DFToken", function () {
 
       expect(ids.length).to.equal(1);
       expect(ids[0]).to.equal(0);
+    });
+
+    it("Returns bid details of given token", async function () {
+      const { token, owner, otherAccount } = await loadFixture(deployFixture);
+      await token.safeMint(owner.address, "");
+      await token.setPrice(1, 1000);
+      await token.connect(otherAccount).bid(1, 1000);
+
+      const bid = await token.getBid(0);
+
+      expect(bid.trader).to.equal(otherAccount.address);
+      expect(bid.value).to.equal(1000);
+      expect(bid.tokenId).to.equal(1);
     });
   });
 

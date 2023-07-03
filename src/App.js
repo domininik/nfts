@@ -13,8 +13,7 @@ class App extends React.Component {
     contract: null,
     signerAddress: '',
     owner: null,
-    balance: 0,
-    counter: 0
+    balance: 0
   }
 
   componentDidMount() {
@@ -41,14 +40,12 @@ class App extends React.Component {
       contract = new ethers.Contract(contractAddress, DFToken.abi, signer);
       const owner = await contract.owner();
       const balance = await contract.balanceOf(signerAddress);
-      const counter = await contract.tokenIdCounter() - 1;
 
       this.addListeners(contract);
 
       this.setState({
         owner: owner,
         balance: balance.toString(),
-        counter: counter.toString()
       });
     } catch (error) {
       console.log(error);
@@ -66,13 +63,11 @@ class App extends React.Component {
       const block = await event.getBlock();
       const timestamp = new Date(block.timestamp * 1000);
       const balance = await contract.balanceOf(this.state.signerAddress);
-      const counter = await contract.tokenIdCounter() - 1;
 
       this.setState({
         notification: notification,
         timestamp: timestamp.toUTCString(),
         balance: balance.toString(),
-        counter: counter.toString()
       });
     });
 
@@ -168,7 +163,6 @@ class App extends React.Component {
           </Segment>
           <Message>
             <Message.Header>{ this.state.balance } owned by you</Message.Header>
-            { this.state.counter } available
           </Message>
         </React.Fragment>
       </Container>
