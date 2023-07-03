@@ -11,15 +11,15 @@ contract DFToken is ERC721, ERC721URIStorage, Ownable {
 
     struct Bid {
         address trader;
-        uint value;
-        uint tokenId;
+        uint256 value;
+        uint256 tokenId;
     }
 
     Counters.Counter private s_tokenIdCounter;
     Bid[] private s_bids;
-    mapping (uint => uint) private s_bidToToken;
-    mapping (uint => uint) private s_tokenBidsCount;
-    mapping (uint => uint) private s_price;
+    mapping (uint256 => uint256) private s_bidToToken;
+    mapping (uint256 => uint256) private s_tokenBidsCount;
+    mapping (uint256 => uint256) private s_price;
 
     constructor() ERC721("DFToken", "DFT") {
         // start counter with 1 instead of 0
@@ -33,7 +33,7 @@ contract DFToken is ERC721, ERC721URIStorage, Ownable {
         _setTokenURI(tokenId, uri);
     }
 
-    function safeBurn(uint tokenId) public onlyOwner {
+    function safeBurn(uint256 tokenId) public onlyOwner {
         _burn(tokenId);
         _cleanBids(tokenId);
         _cleanPrice(tokenId);
@@ -56,7 +56,7 @@ contract DFToken is ERC721, ERC721URIStorage, Ownable {
 
     //
 
-    function getDetails(uint tokenId) public view returns(address, string memory, uint) {
+    function getDetails(uint256 tokenId) public view returns(address, string memory, uint256) {
         return (
             ownerOf(tokenId),
             tokenURI(tokenId),
@@ -64,30 +64,30 @@ contract DFToken is ERC721, ERC721URIStorage, Ownable {
         );
     }
 
-    function setPrice(uint tokenId, uint value) public {
+    function setPrice(uint256 tokenId, uint256 value) public {
         require(ownerOf(tokenId) == msg.sender, "You are not the item owner");
 
         s_price[tokenId] = value;
     }
 
-    function getPrice(uint tokenId) public view returns(uint) {
+    function getPrice(uint256 tokenId) public view returns(uint256) {
         return s_price[tokenId];
     }
 
-    function bid(uint tokenId, uint value) public {
+    function bid(uint256 tokenId, uint256 value) public {
         require(s_price[tokenId] > 0, "Item is not for sale");
 
         s_bids.push(Bid(msg.sender, value, tokenId));
-        uint id = s_bids.length - 1;
+        uint256 id = s_bids.length - 1;
         s_bidToToken[id] = tokenId;
         s_tokenBidsCount[tokenId]++;
     }
 
-    function getBidsByToken(uint tokenId) public view returns(uint[] memory) {
-        uint[] memory result = new uint[](s_tokenBidsCount[tokenId]);
-        uint counter = 0;
+    function getBidsByToken(uint256 tokenId) public view returns(uint256[] memory) {
+        uint256[] memory result = new uint256[](s_tokenBidsCount[tokenId]);
+        uint256 counter = 0;
 
-        for (uint i = 0; i < s_bids.length; i ++) {
+        for (uint256 i = 0; i < s_bids.length; i ++) {
             if (s_bidToToken[i] == tokenId) {
                 result[counter] = i;
                 counter++;
@@ -96,11 +96,11 @@ contract DFToken is ERC721, ERC721URIStorage, Ownable {
         return result;
     }
 
-    function getBid(uint id) public view returns(Bid memory) {
+    function getBid(uint256 id) public view returns(Bid memory) {
         return s_bids[id];
     }
 
-    function buy(uint tokenId) public payable {
+    function buy(uint256 tokenId) public payable {
         require(s_price[tokenId] > 0, "Item is not for sale");
         require(s_price[tokenId] == msg.value, "Price is not met");
 
@@ -111,14 +111,14 @@ contract DFToken is ERC721, ERC721URIStorage, Ownable {
         transferFrom(ownerOf(tokenId), msg.sender, tokenId);
     }
 
-    function _cleanPrice(uint tokenId) private {
+    function _cleanPrice(uint256 tokenId) private {
         s_price[tokenId] = 0;
     }
 
-    function _cleanBids(uint tokenId) private {
+    function _cleanBids(uint256 tokenId) private {
         s_tokenBidsCount[tokenId] = 0;
 
-        for (uint i = 0; i < s_bids.length; i ++) {
+        for (uint256 i = 0; i < s_bids.length; i ++) {
             if (s_bidToToken[i] == tokenId) {
                 s_bidToToken[i] = 0;
             }
