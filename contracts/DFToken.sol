@@ -35,8 +35,8 @@ contract DFToken is ERC721, ERC721URIStorage, Ownable {
 
     function safeBurn(uint tokenId) public onlyOwner {
         _burn(tokenId);
-        cleanBids(tokenId);
-        cleanPrice(tokenId);
+        _cleanBids(tokenId);
+        _cleanPrice(tokenId);
         tokenIdCounter.decrement();
     }
 
@@ -99,16 +99,16 @@ contract DFToken is ERC721, ERC721URIStorage, Ownable {
 
         address payable userPayable = payable(ownerOf(tokenId));
         userPayable.transfer(price[tokenId]);
-        cleanPrice(tokenId);
-        cleanBids(tokenId);
+        _cleanPrice(tokenId);
+        _cleanBids(tokenId);
         transferFrom(ownerOf(tokenId), msg.sender, tokenId);
     }
 
-    function cleanPrice(uint tokenId) private {
+    function _cleanPrice(uint tokenId) private {
         price[tokenId] = 0;
     }
 
-    function cleanBids(uint tokenId) private {
+    function _cleanBids(uint tokenId) private {
         tokenBidsCount[tokenId] = 0;
 
         for (uint i = 0; i < bids.length; i ++) {
