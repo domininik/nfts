@@ -94,6 +94,11 @@ contract DFToken is ERC721, ERC721URIStorage, Ownable {
         userPayable.transfer(price[tokenId]);
 
         price[tokenId] = 0;
+        cleanBids(tokenId);
+        transferFrom(ownerOf(tokenId), msg.sender, tokenId);
+    }
+
+    function cleanBids(uint tokenId) private {
         tokenBidsCount[tokenId] = 0;
 
         for (uint i = 0; i < bids.length; i ++) {
@@ -101,7 +106,5 @@ contract DFToken is ERC721, ERC721URIStorage, Ownable {
                 bidToToken[i] = 0;
             }
         }
-
-        transferFrom(ownerOf(tokenId), msg.sender, tokenId);
     }
 }
