@@ -20,7 +20,7 @@ describe("DFToken", function () {
     it("Initializes tokenIdCounter with default value as 1", async function () {
       const { token } = await loadFixture(deployFixture);
 
-      expect(await token.tokenIdCounter()).to.equal(1);
+      expect(await token.s_tokenIdCounter()).to.equal(1);
     })
   });
 
@@ -43,7 +43,7 @@ describe("DFToken", function () {
       const { token, otherAccount } = await loadFixture(deployFixture);
       await token.safeMint(otherAccount.address, "");
 
-      expect(await token.tokenIdCounter()).to.equal(2);
+      expect(await token.s_tokenIdCounter()).to.equal(2);
     });
 
     it("Sets token URI", async function () {
@@ -57,7 +57,7 @@ describe("DFToken", function () {
       const { token, otherAccount } = await loadFixture(deployFixture);
       await token.safeMint(otherAccount.address, "http://example.com");
 
-      expect(await token.price(1)).to.equal(0);
+      expect(await token.s_price(1)).to.equal(0);
     });
 
     it("Fails when it's called by non-owner", async function () {
@@ -74,7 +74,7 @@ describe("DFToken", function () {
       await token.safeMint(owner.address, "");
       await token.setPrice(1, 1000);
 
-      expect(await token.price(1)).to.equal(1000);
+      expect(await token.s_price(1)).to.equal(1000);
     });
 
     it("Reverts if other account tries to set the price", async function () {
@@ -113,7 +113,7 @@ describe("DFToken", function () {
       await token.setPrice(1, 1000);
       await token.connect(otherAccount).bid(1, 1000);
 
-      const bid = await token.bids(0);
+      const bid = await token.s_bids(0);
 
       expect(bid.tokenId).to.equal(1);
       expect(bid.value).to.equal(1000);
@@ -126,7 +126,7 @@ describe("DFToken", function () {
       await token.setPrice(1, 1000);
       await token.connect(otherAccount).bid(1, 1000);
 
-      expect(await token.bidToToken(0)).to.equal(1);
+      expect(await token.s_bidToToken(0)).to.equal(1);
     });
 
     it("Updates token bids counter", async function () {
@@ -135,7 +135,7 @@ describe("DFToken", function () {
       await token.setPrice(1, 1000);
       await token.connect(otherAccount).bid(1, 1000);
 
-      expect(await token.tokenBidsCount(1)).to.equal(1);
+      expect(await token.s_tokenBidsCount(1)).to.equal(1);
     });
 
     it("Returns bid ids of given token", async function () {
@@ -264,7 +264,7 @@ describe("DFToken", function () {
       await token.approve(otherAccount.address, 1);
       await token.connect(otherAccount).buy(1, { value: 1000 });
 
-      expect(await token.tokenBidsCount(1)).to.equal(0);
+      expect(await token.s_tokenBidsCount(1)).to.equal(0);
       expect(await token.getBidsByToken(1)).to.be.empty;
     });
 
@@ -279,10 +279,10 @@ describe("DFToken", function () {
       await token.approve(otherAccount.address, 1);
       await token.connect(otherAccount).buy(1, { value: 1000 });
 
-      expect(await token.tokenBidsCount(1)).to.equal(0);
+      expect(await token.s_tokenBidsCount(1)).to.equal(0);
       expect(await token.getBidsByToken(1)).to.be.empty;
 
-      expect(await token.tokenBidsCount(2)).to.equal(1);
+      expect(await token.s_tokenBidsCount(2)).to.equal(1);
       const ids = await token.getBidsByToken(2);
       expect(ids[0]).to.equal(1);
     });
@@ -294,7 +294,7 @@ describe("DFToken", function () {
       await token.approve(otherAccount.address, 1);
       await token.connect(otherAccount).buy(1, { value: 1000 });
 
-      expect(await token.price(1)).to.equal(0);
+      expect(await token.s_price(1)).to.equal(0);
     });
 
     it("Does not reset other token prices", async function () {
@@ -306,8 +306,8 @@ describe("DFToken", function () {
       await token.approve(otherAccount.address, 1);
       await token.connect(otherAccount).buy(1, { value: 1000 });
 
-      expect(await token.price(1)).to.equal(0);
-      expect(await token.price(2)).to.equal(500);
+      expect(await token.s_price(1)).to.equal(0);
+      expect(await token.s_price(2)).to.equal(500);
     });
 
     it("Resets token bids counter", async function () {
@@ -318,7 +318,7 @@ describe("DFToken", function () {
       await token.approve(otherAccount.address, 1);
       await token.connect(otherAccount).buy(1, { value: 1000 });
 
-      expect(await token.tokenBidsCount(1)).to.equal(0);
+      expect(await token.s_tokenBidsCount(1)).to.equal(0);
     });
 
     it("Resets bid-to-token mappings", async function () {
@@ -329,7 +329,7 @@ describe("DFToken", function () {
       await token.approve(otherAccount.address, 1);
       await token.connect(otherAccount).buy(1, { value: 1000 });
 
-      expect(await token.bidToToken(0)).to.equal(0);
+      expect(await token.s_bidToToken(0)).to.equal(0);
     });
   });
 
@@ -342,7 +342,7 @@ describe("DFToken", function () {
 
       await token.safeBurn(1);
 
-      expect(await token.tokenIdCounter()).to.equal(3);
+      expect(await token.s_tokenIdCounter()).to.equal(3);
     });
 
     it("Cleans token's bids", async function () {
@@ -359,7 +359,7 @@ describe("DFToken", function () {
 
       await token.safeBurn(1);
 
-      expect(await token.tokenBidsCount(1)).to.equal(0);
+      expect(await token.s_tokenBidsCount(1)).to.equal(0);
       expect(await token.getBidsByToken(1)).to.be.empty;
     });
 
@@ -377,7 +377,7 @@ describe("DFToken", function () {
 
       await token.safeBurn(1);
 
-      expect(await token.price(1)).to.equal(0);
+      expect(await token.s_price(1)).to.equal(0);
     });
 
     it("Reverts when performed by non-owner", async function () {
