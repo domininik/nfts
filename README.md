@@ -23,6 +23,11 @@ Run tests with
 npx hardhat test
 ```
 
+Check tests coverage with
+```shell
+npx hardhat coverage
+```
+
 Start client with
 ```shell
 npm start
@@ -32,7 +37,7 @@ and access it at http://localhost:3000/
 ## Docker
 
 Create and start containers with
-```
+```shell
 docker compose up
 ```
 and access client at http://localhost:3000/
