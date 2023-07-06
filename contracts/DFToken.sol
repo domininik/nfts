@@ -21,6 +21,10 @@ contract DFToken is ERC721, ERC721URIStorage, Ownable {
     mapping (uint256 => uint256) private s_tokenBidsCount;
     mapping (uint256 => uint256) private s_price;
 
+    error DFToken__Unauthorized(address sender, address owner);
+    error DFToken__ItemNotForSale(uint256 tokenId);
+    error DFToken__PriceNotMet(uint256 tokenId);
+
     constructor() ERC721("DFToken", "DFT") {
         // start counter with 1 instead of 0
         s_tokenIdCounter.increment();
@@ -65,7 +69,11 @@ contract DFToken is ERC721, ERC721URIStorage, Ownable {
     }
 
     function setPrice(uint256 tokenId, uint256 value) public {
-        require(ownerOf(tokenId) == msg.sender, "You are not the item owner");
+        address owner = ownerOf(tokenId);
+
+        if (owner != msg.sender) {
+            revert DFToken__Unauthorized(msg.sender, owner);
+        }
 
         s_price[tokenId] = value;
     }
@@ -75,7 +83,9 @@ contract DFToken is ERC721, ERC721URIStorage, Ownable {
     }
 
     function bid(uint256 tokenId, uint256 value) public {
-        require(s_price[tokenId] > 0, "Item is not for sale");
+        if (s_price[tokenId] == 0) {
+            revert DFToken__ItemNotForSale(tokenId);
+        }
 
         s_bids.push(Bid(msg.sender, value, tokenId));
         uint256 id = s_bids.length - 1;
@@ -101,11 +111,18 @@ contract DFToken is ERC721, ERC721URIStorage, Ownable {
     }
 
     function buy(uint256 tokenId) public payable {
-        require(s_price[tokenId] > 0, "Item is not for sale");
-        require(s_price[tokenId] == msg.value, "Price is not met");
+        uint256 currentPrice = s_price[tokenId];
+
+        if (currentPrice == 0) {
+            revert DFToken__ItemNotForSale(tokenId);
+        }
+
+        if (currentPrice != msg.value) {
+            revert DFToken__PriceNotMet(tokenId);
+        }
 
         address payable userPayable = payable(ownerOf(tokenId));
-        userPayable.transfer(s_price[tokenId]);
+        userPayable.transfer(currentPrice);
         _cleanPrice(tokenId);
         _cleanBids(tokenId);
         transferFrom(ownerOf(tokenId), msg.sender, tokenId);

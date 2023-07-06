@@ -68,7 +68,7 @@ describe("DFToken", function () {
       const { token, otherAccount } = await loadFixture(deployFixture);
       await token.safeMint(otherAccount.address, "");
 
-      await expect(token.setPrice(1, 1000)).to.be.revertedWith("You are not the item owner");
+      await expect(token.setPrice(1, 1000)).to.be.revertedWithCustomError(token, "DFToken__Unauthorized");
     });
   });
 
@@ -78,7 +78,7 @@ describe("DFToken", function () {
       await token.safeMint(owner.address, "http://example.com");
       await token.setPrice(1, 1000);
 
-      const details = await token.getDetails(1);
+      const details = await token.connect(otherAccount).getDetails(1);
 
       expect(details[0]).to.equal(owner.address);
       expect(details[1]).to.equal("http://example.com");
@@ -91,7 +91,8 @@ describe("DFToken", function () {
       const { token, owner, otherAccount } = await loadFixture(deployFixture);
       await token.safeMint(owner.address, "");
 
-      await expect(token.connect(otherAccount).bid(1, 1000)).to.be.revertedWith("Item is not for sale");
+      await expect(token.connect(otherAccount).bid(1, 1000))
+        .to.be.revertedWithCustomError(token, "DFToken__ItemNotForSale");
     });
 
     it("Returns bid indexes of given token", async function () {
@@ -151,7 +152,8 @@ describe("DFToken", function () {
       const { token, owner, otherAccount } = await loadFixture(deployFixture);
       await token.safeMint(owner.address, "");
 
-      await expect(token.connect(otherAccount).buy(1)).to.be.revertedWith("Item is not for sale");
+      await expect(token.connect(otherAccount).buy(1))
+        .to.be.revertedWithCustomError(token, "DFToken__ItemNotForSale");
     });
 
     it("Reverts if price is not met", async function () {
@@ -159,7 +161,8 @@ describe("DFToken", function () {
       await token.safeMint(owner.address, "");
       await token.setPrice(1, 1000);
 
-      await expect(token.connect(otherAccount).buy(1)).to.be.revertedWith("Price is not met");
+      await expect(token.connect(otherAccount).buy(1))
+        .to.be.revertedWithCustomError(token, "DFToken__PriceNotMet");
     });
 
     it("Reverts if trader is not approved", async function () {
